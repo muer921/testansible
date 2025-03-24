@@ -1,0 +1,25 @@
+- name: 웹 서버 설치 및 포트 변경
+  hosts: all
+  become: true
+  gather_facts: true
+  vars_files:
+   vars.yml
+  tasks:
+    - name: 웹서버 설치
+      yum:
+       name: httpd
+       state: present
+
+    - name: 포트변경
+      lineinfile:
+        dest: /etc/httpd/conf/httpd.conf
+        regexp: '^Listen[0-9]{1,5}$'
+        line: Listen {{ webport }}
+      notify:
+        - restartweb
+
+  handlers:
+    - name: restartweb
+      service:
+        name: httpd
+        state: restarted
